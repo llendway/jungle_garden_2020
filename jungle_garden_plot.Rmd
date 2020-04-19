@@ -1,0 +1,29 @@
+---
+title: "Data test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+theme_set(theme_minimal())
+```
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(googlesheets4)
+```
+
+
+```{r}
+garden_plot <- read_sheet("https://docs.google.com/spreadsheets/d/1jg6TTJWZhzaUo2WvW30g3bHbNPA4RD5nNs8l0HNSiaM/edit?usp=sharing")
+```
+
+```{r, fig.width=2.7, fig.height=3}
+garden_plot %>% 
+  ggplot(aes(x = x, y = y, group = plot)) +
+  geom_polygon()
+```
+
+
+
+
