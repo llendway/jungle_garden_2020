@@ -4,13 +4,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-theme_set(theme_minimal())
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(googlesheets4)
+theme_set(theme_minimal())
 ```
 
 
@@ -24,6 +24,59 @@ garden_plot %>%
   geom_polygon()
 ```
 
+
+
+```{r}
+garden_harvest <- read_sheet("https://docs.google.com/spreadsheets/d/1DekSazCzKqPS2jnGhKue7tLxRU3GVL1oxi-4bEM5IWw/edit?usp=sharing")
+```
+
+```{r}
+garden_harvest %>% 
+  group_by(vegetable, date) %>% 
+  summarize(weight = sum(weight)) %>% 
+  group_by(vegetable) %>% 
+  mutate(cum_harvest = cumsum(weight)) %>%
+  ggplot(aes(x = date, y = cum_harvest, color = vegetable)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Cumulative harvest from the #junglegarden (grams)",
+       y = "", x = "") +
+  scale_color_viridis_d() +
+  scale_y_continuous(breaks = seq(0,500,20))
+```
+
+
+```{r, message=FALSE}
+garden_harvest %>% 
+  group_by(vegetable, date) %>% 
+  summarize(weight = sum(weight)) %>% 
+  group_by(vegetable) %>% 
+  mutate(cum_harvest = cumsum(weight)) %>%
+  ggplot(aes(x = date, y = cum_harvest, color = vegetable, 
+             group = vegetable)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Cumulative harvest from the #junglegarden (grams)",
+       y = "", x = "") +
+  scale_color_viridis_d() +
+  scale_y_continuous(breaks = seq(0,500,20)) +
+  facet_wrap(vars(vegetable)) +
+  guides(color = "none")
+```
+
+```{r}
+garden_harvest %>% 
+  group_by(vegetable, date) %>% 
+  summarize(weight = sum(weight)) %>% 
+  ggplot(aes(x = date, y = weight, color = vegetable)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Daily harvests from the #junglegarden (grams)",
+       y = "", x = "") +
+  scale_color_viridis_d() +
+  scale_y_continuous(breaks = seq(0,500,10)) +
+  facet_wrap(vars(vegetable))
+```
 
 
 
