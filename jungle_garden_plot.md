@@ -5,11 +5,10 @@ output:
     keep_md: yes
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
 
-```{r, warning=FALSE, message=FALSE}
+
+
+```r
 library(tidyverse)
 library(googlesheets4)
 theme_set(theme_minimal())
@@ -17,31 +16,40 @@ gs4_deauth()
 ```
 
 Read in garden plot data:
-```{r}
+
+```r
 garden_plot <- read_sheet("https://docs.google.com/spreadsheets/d/1jg6TTJWZhzaUo2WvW30g3bHbNPA4RD5nNs8l0HNSiaM/edit?usp=sharing")
 ```
 
 Create garden plot map:
-```{r, fig.width=5, fig.height=6}
+
+```r
 garden_plot %>% 
   ggplot(aes(x = x, y = y, group = plot)) +
   geom_polygon()
 ```
 
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 Compare to Google maps photo:
 
-```{r, out.width=300}
+
+```r
 knitr::include_graphics("garden_birdseye.png")
 ```
 
+<img src="garden_birdseye.png" width="300" />
+
 
 Read in harvest data:
-```{r}
+
+```r
 garden_harvest <- read_sheet("https://docs.google.com/spreadsheets/d/1DekSazCzKqPS2jnGhKue7tLxRU3GVL1oxi-4bEM5IWw/edit?usp=sharing")
 ```
 
 Cumulative harvest plot:
-```{r}
+
+```r
 garden_harvest %>% 
   group_by(vegetable, date) %>% 
   summarize(weight = sum(weight)) %>% 
@@ -56,8 +64,11 @@ garden_harvest %>%
   scale_y_continuous(breaks = seq(0,1000,50))
 ```
 
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
 Faceted cumulative harvest:
-```{r, message=FALSE, fig.height=6, fig.width=7}
+
+```r
 garden_harvest %>% 
   group_by(vegetable, date) %>% 
   summarize(weight = sum(weight)) %>% 
@@ -75,8 +86,11 @@ garden_harvest %>%
   guides(color = "none")
 ```
 
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 Daily harvest faceted plot:
-```{r, fig.height=6, fig.width=7}
+
+```r
 garden_harvest %>% 
   group_by(vegetable, date) %>% 
   summarize(weight = sum(weight)) %>% 
@@ -90,6 +104,8 @@ garden_harvest %>%
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
+
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
 
