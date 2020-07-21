@@ -12,6 +12,7 @@ output:
 library(tidyverse)
 library(googlesheets4)
 library(patchwork)
+library(lubridate)
 theme_set(theme_minimal())
 gs4_deauth() #To not have to authorize each time you knit.
 ```
@@ -45,7 +46,8 @@ knitr::include_graphics("garden_birdseye.png")
 Read in harvest data:
 
 ```r
-garden_harvest <- read_sheet("https://docs.google.com/spreadsheets/d/1DekSazCzKqPS2jnGhKue7tLxRU3GVL1oxi-4bEM5IWw/edit?usp=sharing")
+garden_harvest <- read_sheet("https://docs.google.com/spreadsheets/d/1DekSazCzKqPS2jnGhKue7tLxRU3GVL1oxi-4bEM5IWw/edit?usp=sharing") %>% 
+  mutate(date = ymd(date))
 ```
 
 Overall cumulative harvest and daily harvest plots:
@@ -61,7 +63,7 @@ cum_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Cumulative harvest from the #junglegarden (lbs)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,30,1))
+  scale_y_continuous(breaks = seq(0,100,4))
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
@@ -72,12 +74,18 @@ daily_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Daily harvest from the #junglegarden (lbs)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,30,1))
+  scale_y_continuous(breaks = seq(0,100,1))
 
-cum_harvest / daily_harvest
+cum_harvest 
 ```
 
 ![](jungle_garden_plot_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+```r
+daily_harvest
+```
+
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-6-2.png)<!-- -->
 
 Total by vegetable:
 
@@ -101,21 +109,40 @@ garden_harvest %>%
 Cumulative harvest plot, by vegetable:
 
 ```r
-garden_harvest %>% 
+smry_veg_date <- garden_harvest %>% 
   group_by(vegetable, date) %>% 
   summarize(weight = sum(weight)) %>% 
   group_by(vegetable) %>% 
-  mutate(cum_harvest = cumsum(weight)) %>%
-  ggplot(aes(x = date, y = cum_harvest, color = vegetable)) +
+  mutate(cum_harvest = cumsum(weight),
+         wt_lbs = cum_harvest*0.00220462)
+
+cum_label <- smry_veg_date %>% 
+  group_by(vegetable) %>% 
+  summarize(max_date = max(date) + days(1),
+            max_harvest = max(wt_lbs)) 
+
+smry_veg_date %>%
+  ggplot(aes(x = date, y = wt_lbs, color = vegetable)) +
   geom_point() +
   geom_line() +
-  labs(title = "Cumulative harvest from the #junglegarden (grams)",
+  geom_text(aes(x = max_date, 
+                y = max_harvest, 
+                label = vegetable),
+            data = cum_label,
+            size = 2,
+            hjust = 0) +
+  labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,5000,100))
+  scale_y_continuous(breaks = seq(0,30,1)) +    
+  guides(color = "none")
 ```
 
 ![](jungle_garden_plot_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+```r
+#  theme(legend.position = "bottom", legend.title = element_text( size=2), legend.text=element_text(size=2)) 
+```
 
 Faceted cumulative harvest:
 
@@ -124,15 +151,16 @@ garden_harvest %>%
   group_by(vegetable, date) %>% 
   summarize(weight = sum(weight)) %>% 
   group_by(vegetable) %>% 
-  mutate(cum_harvest = cumsum(weight)) %>%
-  ggplot(aes(x = date, y = cum_harvest, color = vegetable, 
+  mutate(cum_harvest = cumsum(weight),
+         wt_lbs = cum_harvest*0.00220462) %>%
+  ggplot(aes(x = date, y = wt_lbs, color = vegetable, 
              group = vegetable)) +
   geom_point() +
   geom_line() +
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,5000,100)) +
+  scale_y_continuous(breaks = seq(0,30,1)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
@@ -151,7 +179,7 @@ garden_harvest %>%
   labs(title = "Daily harvests from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,1000,50)) +
+  scale_y_continuous(breaks = seq(0,2000,100)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
