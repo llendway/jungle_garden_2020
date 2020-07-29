@@ -53,7 +53,7 @@ cum_harvest <- garden_harvest %>%
   ggplot(aes(x = date, y = wt_lbs)) +
   geom_point() +
   geom_line() +
-  labs(title = "Cumulative harvest from the #junglegarden (lbs)",
+  labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_y_continuous(breaks = seq(0,100,4))
 
@@ -64,7 +64,7 @@ daily_harvest <- garden_harvest %>%
   ggplot(aes(x = date, y = wt_lbs)) +
   geom_point() +
   geom_line() +
-  labs(title = "Daily harvest from the #junglegarden (lbs)",
+  labs(title = "Daily harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_y_continuous(breaks = seq(0,100,1))
 
@@ -84,7 +84,7 @@ garden_harvest %>%
              y = wt_lbs)) +
   geom_col() +
   coord_flip() +
-  labs(title = "Cumulative harvest (lbs)", x = "", y = "")
+  labs(title = "Cumulative harvest (lb)", x = "", y = "")
 
 ```
 
