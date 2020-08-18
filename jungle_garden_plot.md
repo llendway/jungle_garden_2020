@@ -61,9 +61,9 @@ cum_harvest <- garden_harvest %>%
   ggplot(aes(x = date, y = wt_lbs)) +
   geom_point() +
   geom_line() +
-  labs(title = "Cumulative harvest from the #junglegarden (lbs)",
+  labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,100,4))
+  scale_y_continuous(breaks = seq(0,300,10))
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
@@ -72,7 +72,7 @@ daily_harvest <- garden_harvest %>%
   ggplot(aes(x = date, y = wt_lbs)) +
   geom_point() +
   geom_line() +
-  labs(title = "Daily harvest from the #junglegarden (lbs)",
+  labs(title = "Daily harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_y_continuous(breaks = seq(0,100,1))
 
@@ -100,7 +100,8 @@ garden_harvest %>%
              y = wt_lbs)) +
   geom_col() +
   coord_flip() +
-  labs(title = "Cumulative harvest (lbs)", x = "", y = "")
+  scale_y_continuous(breaks = seq(0,100,5)) +
+  labs(title = "Cumulative harvest (lb)", x = "", y = "")
 ```
 
 ![](jungle_garden_plot_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
@@ -134,7 +135,7 @@ smry_veg_date %>%
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,30,1)) +    
+  scale_y_continuous(breaks = seq(0,50,2)) +    
   guides(color = "none")
 ```
 
@@ -160,7 +161,7 @@ garden_harvest %>%
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,30,1)) +
+  scale_y_continuous(breaks = seq(0,50,2)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
@@ -179,7 +180,7 @@ garden_harvest %>%
   labs(title = "Daily harvests from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,2000,100)) +
+  scale_y_continuous(breaks = seq(0,4000,200)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
