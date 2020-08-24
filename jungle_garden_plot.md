@@ -63,7 +63,7 @@ cum_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,300,10))
+  scale_y_continuous(breaks = seq(0,500,20))
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
@@ -74,7 +74,7 @@ daily_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Daily harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,100,1))
+  scale_y_continuous(breaks = seq(0,100,2))
 
 cum_harvest 
 ```
@@ -135,7 +135,7 @@ smry_veg_date %>%
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,50,2)) +    
+  scale_y_continuous(breaks = seq(0,100,4)) +    
   guides(color = "none")
 ```
 
@@ -161,7 +161,7 @@ garden_harvest %>%
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,50,2)) +
+  scale_y_continuous(breaks = seq(0,100,4)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
@@ -180,7 +180,7 @@ garden_harvest %>%
   labs(title = "Daily harvests from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,4000,200)) +
+  scale_y_continuous(breaks = seq(0,5000,200)) +
   facet_wrap(vars(vegetable)) +
   guides(color = "none")
 ```
