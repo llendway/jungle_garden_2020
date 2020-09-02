@@ -84,7 +84,7 @@ garden_harvest %>%
              y = wt_lbs)) +
   geom_col() +
   coord_flip() +
-  scale_y_continuous(breaks = seq(0,100,5)) +
+  scale_y_continuous(breaks = seq(0,200,15)) +
   labs(title = "Cumulative harvest (lb)", x = "", y = "")
 
 ```
@@ -117,7 +117,7 @@ smry_veg_date %>%
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,100,4)) +    
+  scale_y_continuous(breaks = seq(0,300,10)) +    
   guides(color = "none")
 
 #  theme(legend.position = "bottom", legend.title = element_text( size=2), legend.text=element_text(size=2)) 
@@ -138,8 +138,8 @@ garden_harvest %>%
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,100,4)) +
-  facet_wrap(vars(vegetable)) +
+  scale_y_continuous(breaks = seq(0,300,10)) +
+  facet_wrap(vars(vegetable), scales = "free_y") +
   guides(color = "none")
 ```
 
@@ -147,15 +147,14 @@ Daily harvest faceted plot:
 ```{r, message=FALSE, fig.height=6, fig.width=7}
 garden_harvest %>% 
   group_by(vegetable, date) %>% 
-  summarize(weight = sum(weight)) %>% 
+  summarize(weight = sum(weight)*0.00220462) %>% 
   ggplot(aes(x = date, y = weight, color = vegetable)) +
   geom_point() +
   geom_line() +
-  labs(title = "Daily harvests from the #junglegarden (grams)",
+  labs(title = "Daily harvests from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,5000,200)) +
-  facet_wrap(vars(vegetable)) +
+  facet_wrap(vars(vegetable), scales = "free_y") +
   guides(color = "none")
 ```
 
