@@ -55,7 +55,7 @@ cum_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,500,20))
+  scale_y_continuous(breaks = seq(0,700,25))
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
@@ -84,7 +84,7 @@ garden_harvest %>%
              y = wt_lbs)) +
   geom_col() +
   coord_flip() +
-  scale_y_continuous(breaks = seq(0,200,15)) +
+  scale_y_continuous(breaks = seq(0,300,20)) +
   labs(title = "Cumulative harvest (lb)", x = "", y = "")
 
 ```
