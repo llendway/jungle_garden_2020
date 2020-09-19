@@ -26,9 +26,19 @@ garden_plot <- read_sheet("https://docs.google.com/spreadsheets/d/1jg6TTJWZhzaUo
 Create garden plot map:
 
 ```r
+for_labs <- garden_plot %>% 
+  group_by(plot) %>% 
+  summarize(x = mean(x),
+            y = mean(y))
+
 garden_plot %>% 
   ggplot(aes(x = x, y = y, group = plot)) +
-  geom_polygon()
+  geom_polygon() +
+  geom_text(data = for_labs, 
+            aes(x = x, y = y, label = plot), 
+            color = "hotpink",
+            size = 6) +
+  theme(panel.background = element_rect(fill = "lightgray"))
 ```
 
 ![](jungle_garden_plot_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
@@ -63,7 +73,7 @@ cum_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,500,20))
+  scale_y_continuous(breaks = seq(0,1000,50))
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
@@ -74,7 +84,7 @@ daily_harvest <- garden_harvest %>%
   geom_line() +
   labs(title = "Daily harvest from the #junglegarden (lb)",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,100,2))
+  scale_y_continuous(breaks = seq(0,200,10))
 
 cum_harvest 
 ```
@@ -100,7 +110,7 @@ garden_harvest %>%
              y = wt_lbs)) +
   geom_col() +
   coord_flip() +
-  scale_y_continuous(breaks = seq(0,100,5)) +
+  scale_y_continuous(breaks = seq(0,300,20)) +
   labs(title = "Cumulative harvest (lb)", x = "", y = "")
 ```
 
@@ -135,7 +145,7 @@ smry_veg_date %>%
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,100,4)) +    
+  scale_y_continuous(breaks = seq(0,300,10)) +    
   guides(color = "none")
 ```
 
@@ -144,6 +154,41 @@ smry_veg_date %>%
 ```r
 #  theme(legend.position = "bottom", legend.title = element_text( size=2), legend.text=element_text(size=2)) 
 ```
+
+Pumpkins and squash:
+
+```r
+garden_harvest %>% 
+  filter(vegetable %in% c("pumpkins", "squash")) %>% 
+  mutate(variety = str_to_sentence(variety)) %>% 
+  ggplot(aes(y = fct_reorder(variety, weight), 
+              x = weight*0.00220462,
+             color = variety)) + 
+  geom_jitter(height = .2, 
+              size = .8,
+              alpha = .5) +
+  geom_vline(aes(xintercept = mean(weight*0.00220462)),
+             alpha = .5,
+             color = "gray") +
+  labs(title = "Weights of pumpkins and squash (lb)",
+       x = "",
+       y = "") +
+  scale_color_manual(values = c("Cinderalla's carraige" = "orangered3",
+                                "Saved" = "darkorange2",
+                                "Blue (saved)" = "steelblue4",
+                                "Waltham butternut" = "darkgoldenrod3",
+                                "New england sugar" = "orange2",
+                                "Red kuri" = "orangered",
+                                "Delicata" = "lightgoldenrod")) +
+  theme_minimal() +
+  theme(axis.line = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none")
+```
+
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+
 
 Faceted cumulative harvest:
 
@@ -161,31 +206,30 @@ garden_harvest %>%
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,100,4)) +
-  facet_wrap(vars(vegetable)) +
+  scale_y_continuous(breaks = seq(0,300,10)) +
+  facet_wrap(vars(vegetable), scales = "free_y") +
   guides(color = "none")
 ```
 
-![](jungle_garden_plot_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 Daily harvest faceted plot:
 
 ```r
 garden_harvest %>% 
   group_by(vegetable, date) %>% 
-  summarize(weight = sum(weight)) %>% 
+  summarize(weight = sum(weight)*0.00220462) %>% 
   ggplot(aes(x = date, y = weight, color = vegetable)) +
   geom_point() +
   geom_line() +
-  labs(title = "Daily harvests from the #junglegarden (grams)",
+  labs(title = "Daily harvests from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,5000,200)) +
-  facet_wrap(vars(vegetable)) +
+  facet_wrap(vars(vegetable), scales = "free_y") +
   guides(color = "none")
 ```
 
-![](jungle_garden_plot_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 
 
