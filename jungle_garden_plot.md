@@ -13,6 +13,9 @@ library(tidyverse)
 library(googlesheets4)
 library(patchwork)
 library(lubridate)
+library(extrafont)
+library(ggtext)
+#font_import()
 theme_set(theme_minimal())
 gs4_deauth() #To not have to authorize each time you knit.
 ```
@@ -158,7 +161,24 @@ smry_veg_date %>%
 Pumpkins and squash:
 
 ```r
-garden_harvest %>% 
+pump_squash_labels <- c(
+`Cinderella's carraige` = "<img src = 'https://www.seedsnsuch.com/wp-content/uploads/2019/06/cinderella.jpg' width='60' /><br>*Cinderella's carraige*",
+Saved = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/FrenchMarketPumpkinsB.jpg/1920px-FrenchMarketPumpkinsB.jpg' width='60' /><br>*Saved*",
+`Blue (saved)` = "<img src = 'https://assets.epicurious.com/photos/5893bf1d69cf1107794eb174/6:4/w_1600%2Cc_limit/blue-hubbard-squash-020217.jpg' width='60' /><br>*Blue (saved)*
+",
+`Waltham butternut` = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Cucurbita_moschata_Butternut_2012_G2.jpg/440px-Cucurbita_moschata_Butternut_2012_G2.jpg' width='60' /><br>*Waltham butternut*",
+`New england sugar` = "<img src = 'https://www.edenbrothers.com/store/media/Seeds-Vegetables/resized/SVPUM117-1_medium.jpg' width='60' /><br>*New england sugar*",
+`Red kuri` = "<img src = 'https://imagesvc.meredithcorp.io/v3/mm/image?q=85&c=sc&poi=face&w=650&h=340&url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F43%2F2017%2F10%2F454124-Red-Kuri-Squash-or-Hokkaido-Pumpkin-Photo-via-Bigstock-650x465.jpg' width='60' /><br>*Red kuri*",
+`Delicata` = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg/440px-Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg' width='60' /><br>*Delicata*"
+)
+
+avg_pump_squash <- garden_harvest %>% 
+  filter(vegetable %in% c("pumpkins", "squash")) %>% 
+  mutate(variety = str_to_sentence(variety)) %>% 
+  group_by(variety) %>% 
+  summarize(avg_weight_lb = mean(weight*0.00220462))
+
+pump_squash_graph <- garden_harvest %>% 
   filter(vegetable %in% c("pumpkins", "squash")) %>% 
   mutate(variety = str_to_sentence(variety)) %>% 
   ggplot(aes(y = fct_reorder(variety, weight), 
@@ -167,26 +187,45 @@ garden_harvest %>%
   geom_jitter(height = .2, 
               size = .8,
               alpha = .5) +
+  geom_point(data = avg_pump_squash,
+             aes(x = avg_weight_lb,
+                 y = variety,
+                 color = variety),
+             shape = 8) +
   geom_vline(aes(xintercept = mean(weight*0.00220462)),
              alpha = .5,
-             color = "gray") +
+             color = "gray",
+             linetype = "dotted") +
+  annotate("text", x = 5, y = "Delicata",
+           label = "Mean weight",
+           color = "gray") +
   labs(title = "Weights of pumpkins and squash (lb)",
+       subtitle = "* = average weight for variety",
+       caption = "Graph & data: @lisalendway",
        x = "",
        y = "") +
-  scale_color_manual(values = c("Cinderalla's carraige" = "orangered3",
+  scale_color_manual(values = c("Cinderella's carraige" = "orangered3",
                                 "Saved" = "darkorange2",
                                 "Blue (saved)" = "steelblue4",
                                 "Waltham butternut" = "darkgoldenrod3",
                                 "New england sugar" = "orange2",
                                 "Red kuri" = "orangered",
                                 "Delicata" = "lightgoldenrod")) +
+  scale_y_discrete(name = NULL,
+                   labels = pump_squash_labels) +
   theme_minimal() +
   theme(axis.line = element_blank(),
         panel.grid = element_blank(),
-        legend.position = "none")
+        legend.position = "none",
+        text = element_text(family = "Verdana"),
+        plot.background = element_rect(fill = rgb(248, 255, 245, maxColorValue = 255)),
+        axis.text.y = element_markdown(color = "black", size = 10)) 
+
+pump_squash_graph
 ```
 
 ![](jungle_garden_plot_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 
 
 
@@ -211,7 +250,7 @@ garden_harvest %>%
   guides(color = "none")
 ```
 
-![](jungle_garden_plot_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 Daily harvest faceted plot:
 
@@ -229,7 +268,7 @@ garden_harvest %>%
   guides(color = "none")
 ```
 
-![](jungle_garden_plot_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](jungle_garden_plot_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 
 
