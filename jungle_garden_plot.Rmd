@@ -65,44 +65,63 @@ cum_harvest <- garden_harvest %>%
   mutate(cum_harvest = cumsum(weight),
          wt_lbs = cum_harvest*0.00220462) %>%
   ggplot(aes(x = date, y = wt_lbs)) +
-  geom_point() +
+  geom_point(size = .5) +
   geom_line() +
-  labs(title = "Cumulative harvest from the #junglegarden (lb)",
+  labs(title = "Cumulative",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,1000,50))
+  scale_y_continuous(breaks = seq(0,1000,50)) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title.position = "plot")
 
 daily_harvest <- garden_harvest %>% 
   group_by(date) %>% 
   summarize(weight = sum(weight),
             wt_lbs = weight*0.00220462) %>% 
   ggplot(aes(x = date, y = wt_lbs)) +
-  geom_point() +
+  geom_point(size = .5) +
   geom_line() +
-  labs(title = "Daily harvest from the #junglegarden (lb)",
+  labs(title = "Daily",
        y = "", x = "") +
-  scale_y_continuous(breaks = seq(0,200,10))
+  scale_y_continuous(breaks = seq(0,200,10)) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title.position = "plot")
 
-cum_harvest 
-daily_harvest
+daily_cumulative_plots <-
+(cum_harvest / daily_harvest) + 
+  plot_annotation(title = "Harvest from the #junglegarden (lb)")
+
+ggsave("daily_cumulative_plots.png",
+       daily_cumulative_plots)
 ```
+
+![](daily_cumulative_plots.png)
 
 Total by vegetable:
 
-```{r}
-garden_harvest %>% 
-  mutate(wt_lbs = weight*0.00220462) %>%
+```{r, fig.asp=.5}
+total_veg_plot <-
+  garden_harvest %>% 
+  mutate(wt_lbs = weight*0.00220462,
+         vegetable = str_to_title(vegetable)) %>%
   group_by(vegetable) %>% 
   summarize(wt_lbs = sum(wt_lbs)) %>% 
   arrange(desc(wt_lbs)) %>% 
-  ggplot(aes(x = fct_reorder(vegetable, wt_lbs, sum),
-             y = wt_lbs)) +
+  ggplot(aes(y = fct_reorder(vegetable, wt_lbs, sum),
+             x = wt_lbs)) +
   geom_col() +
-  coord_flip() +
-  scale_y_continuous(breaks = seq(0,300,20)) +
-  labs(title = "Cumulative harvest (lb)", x = "", y = "")
+  scale_x_continuous(breaks = seq(0,400,25),
+                     limits = c(0,NA)) +
+  labs(title = "Cumulative harvest (lb)", x = "", y = "") +
+  theme(plot.title.position = "plot", 
+        panel.grid.major.y = element_blank(), 
+        panel.grid.minor.x = element_blank())
 
+ggsave("total_veg.png", total_veg_plot)
 ```
 
+![](total_veg.png)
 
 Cumulative harvest plot, by vegetable:
 ```{r}
@@ -131,23 +150,23 @@ smry_veg_date %>%
   labs(title = "Cumulative harvest from the #junglegarden (lb)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,300,10)) +    
+  scale_y_continuous(breaks = seq(0,400,25)) +    
   guides(color = "none")
 
 #  theme(legend.position = "bottom", legend.title = element_text( size=2), legend.text=element_text(size=2)) 
 ```
 
 Pumpkins and squash:
-```{r, fig.width=8, fig.asp=1}
+```{r, fig.width=8, fig.asp=1, eval=FALSE}
 pump_squash_labels <- c(
 `Cinderella's carraige` = "<img src = 'https://www.seedsnsuch.com/wp-content/uploads/2019/06/cinderella.jpg' width='60' /><br>*Cinderella's carraige*",
 Saved = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/FrenchMarketPumpkinsB.jpg/1920px-FrenchMarketPumpkinsB.jpg' width='60' /><br>*Saved*",
 `Blue (saved)` = "<img src = 'https://assets.epicurious.com/photos/5893bf1d69cf1107794eb174/6:4/w_1600%2Cc_limit/blue-hubbard-squash-020217.jpg' width='60' /><br>*Blue (saved)*
 ",
 `Waltham butternut` = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Cucurbita_moschata_Butternut_2012_G2.jpg/440px-Cucurbita_moschata_Butternut_2012_G2.jpg' width='60' /><br>*Waltham butternut*",
-`New england sugar` = "<img src = 'https://www.edenbrothers.com/store/media/Seeds-Vegetables/resized/SVPUM117-1_medium.jpg' width='60' /><br>*New england sugar*",
+`New england sugar` = "<img src = 'https://www.edenbrothers.com/store/media/Seeds-Vegetables/resized/SVPUM117-1_medium.jpg' width='50' /><br>*New england sugar*",
 `Red kuri` = "<img src = 'https://imagesvc.meredithcorp.io/v3/mm/image?q=85&c=sc&poi=face&w=650&h=340&url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F43%2F2017%2F10%2F454124-Red-Kuri-Squash-or-Hokkaido-Pumpkin-Photo-via-Bigstock-650x465.jpg' width='60' /><br>*Red kuri*",
-`Delicata` = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg/440px-Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg' width='60' /><br>*Delicata*"
+`Delicata` = "<img src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg/440px-Cucurbita_pepo_Delicata_squash_Green_Mountain_Girls_Farm.jpg' width='50' /><br>*Delicata*"
 )
 
 avg_pump_squash <- garden_harvest %>% 
@@ -163,12 +182,12 @@ pump_squash_graph <- garden_harvest %>%
               x = weight*0.00220462,
              color = variety)) + 
   geom_jitter(height = .2, 
-              size = .8,
               alpha = .5) +
   geom_point(data = avg_pump_squash,
              aes(x = avg_weight_lb,
                  y = variety,
                  color = variety),
+             size = 2.5,
              shape = 8) +
   geom_vline(aes(xintercept = mean(weight*0.00220462)),
              alpha = .5,
@@ -194,6 +213,7 @@ pump_squash_graph <- garden_harvest %>%
   theme_minimal() +
   theme(axis.line = element_blank(),
         panel.grid = element_blank(),
+        plot.title.position = "plot",
         legend.position = "none",
         text = element_text(family = "Verdana"),
         plot.background = element_rect(fill = rgb(248, 255, 245, maxColorValue = 255)),
@@ -205,6 +225,8 @@ pump_squash_graph
 ```{r, eval=FALSE, echo=FALSE}
 ggsave(pump_squash_graph, filename = "pump_squash_graph.png")
 ```
+
+![](pump_squash_graph.png)
 
 
 Faceted cumulative harvest:
@@ -222,7 +244,7 @@ garden_harvest %>%
   labs(title = "Cumulative harvest from the #junglegarden (grams)",
        y = "", x = "") +
   scale_color_viridis_d() +
-  scale_y_continuous(breaks = seq(0,300,10)) +
+  scale_y_continuous(breaks = seq(0,300,20)) +
   facet_wrap(vars(vegetable), scales = "free_y") +
   guides(color = "none")
 ```
@@ -243,4 +265,17 @@ garden_harvest %>%
 ```
 
 
+Cumulative harvest, including all dates after first harvest date.
 
+```{r}
+garden_harvest %>% 
+  group_by(date, vegetable) %>% 
+  summarize(daily_harvest_lb = sum(weight)*0.00220462) %>% 
+  ungroup() %>% 
+  complete(date, vegetable) %>% 
+  arrange(vegetable,date) %>% 
+  group_by(vegetable) %>% 
+  replace_na(list(daily_harvest_lb = 0)) %>% 
+  mutate(cum_harvest_lb = cumsum(daily_harvest_lb)) %>% 
+  filter(cum_harvest_lb > 0)
+```

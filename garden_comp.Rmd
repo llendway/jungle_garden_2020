@@ -4,25 +4,75 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(googlesheets4)
+library(gardenR)
+library(patchwork)
+library(lubridate)
+library(extrafont)
+library(ggtext)
+#font_import()
+theme_set(theme_minimal())
+gs4_deauth() #To not have to authorize each time you knit.
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+harvest_2021 <- read_sheet("https://docs.google.com/spreadsheets/d/1DU6dpxrbPGW2oJHQ6TG_xibazoGhvmRcqk2iPGOaRUI/edit?usp=sharing") %>% 
+  mutate(date = ymd(date))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+cum_harvest_2020 <- garden_harvest %>% 
+  group_by(date) %>% 
+  summarize(tot_harvest = sum(weight)*0.00220462) %>% 
+  mutate(cum_harvest = cumsum(tot_harvest),
+         year = year(date))
+
+cum_harvest_2020
+
+cum_harvest_2021 <- harvest_2021 %>% 
+  group_by(date) %>% 
+  summarize(tot_harvest = sum(weight)*0.00220462) %>% 
+  mutate(cum_harvest = cumsum(tot_harvest),
+         year = year(date),
+         date = date %m-% years(1))
+
+cum_harvest_2021
+```
+
+
+```{r}
+date_lim <- cum_harvest_2020 %>% 
+  filter(date == max(date)) %>% 
+  pull(date)
+
+comp_plot <- cum_harvest_2020 %>% 
+  bind_rows(cum_harvest_2021) %>% 
+  filter(date <= date_lim) %>% 
+  ggplot(aes(x = date,
+             y = cum_harvest,
+             color = as.factor(year))) +
+  geom_line() +
+  labs(x = NULL,
+       y = NULL,
+       title = "Cumulative harvest (pounds) for <span style = 'color: #3083CF;'>2020</span> and <span style = 'color: #CF7C30;'>2021</span>",
+       color = "Year") +
+  scale_color_manual(values = c("#3083CF", "#CF7C30")) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        plot.title = element_markdown(),
+        legend.position = "none",
+        plot.title.position = "plot")
+
+comp_plot
+```
+
+```{r}
+ggsave("comp_2020_21.png", comp_plot)
+```
+
